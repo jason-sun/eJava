@@ -9,19 +9,18 @@ import com.erlitech.ejava.utils.XqlUtil;
  * Log服务(数据库)
  *
  * @author 孙振强
- * @date 2017-08-15
  */
 public class ApiLogService {
 
     /**
      * 获取共享数据中心接口结果
      *
-     * @param joInData
-     * @param joOutData
-     * @param ip
-     * @param userAgent
-     * @param referer
-     * @return
+     * @param joInData 输入JSONObject
+     * @param joOutData 输出JSONObject
+     * @param ip 访问ip
+     * @param userAgent 访问userAgent
+     * @param referer 访问来源
+     * @return Log对象
      */
     public static JSONObject addLog(JSONObject joInData, JSONObject joOutData, String ip, String userAgent, String referer) {
         String id;
@@ -54,8 +53,8 @@ public class ApiLogService {
     /**
      * 获取共享数据中心接口结果
      *
-     * @param oldLog
-     * @param joOutData
+     * @param oldLog 之前Log
+     * @param joOutData  输出JSONObject
      */
     public static void updateLog(JSONObject oldLog, JSONObject joOutData) {
         JSONObject log = new JSONObject();

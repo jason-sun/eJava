@@ -21,7 +21,6 @@ import java.util.logging.Logger;
  * Api Controller 统一路由
  *
  * @author 孙振强
- * @date 2017-08-15
  */
 public class ApiController {
 
@@ -42,8 +41,8 @@ public class ApiController {
     /**
      * 路由
      *
-     * @param request
-     * @param response
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
      */
     public static void router(HttpServletRequest request, HttpServletResponse response) {
         if (!requestAllowAccess(request, response)) {

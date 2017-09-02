@@ -41,7 +41,7 @@ public class XHttpClientUtil {
     /**
      * 通过连接池获取HttpClient
      *
-     * @return
+     * @return HttpClient
      */
     private static CloseableHttpClient getHttpClient() {
         init();
@@ -49,8 +49,8 @@ public class XHttpClientUtil {
     }
 
     /**
-     * @param url
-     * @return
+     * @param url 访问url
+     * @return HttpGet
      */
     public static String httpGetRequest(String url) {
         HttpGet httpGet = new HttpGet(url);
@@ -119,8 +119,8 @@ public class XHttpClientUtil {
     /**
      * 处理Http请求
      *
-     * @param request
-     * @return
+     * @param request HttpRequestBase
+     * @return result
      */
     private static String getResult(HttpRequestBase request) {
         //CloseableHttpClient httpClient = HttpClients.createDefault();

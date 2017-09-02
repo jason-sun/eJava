@@ -13,7 +13,6 @@ import java.util.logging.Logger;
  * jdbc操作类
  *
  * @author 孙振强
- * @since 2017-07-18
  */
 public final class XdbUtil {
 
@@ -27,8 +26,8 @@ public final class XdbUtil {
     /**
      * 获得数据库的连接
      *
-     * @return
-     * @throws java.sql.SQLException
+     * @return connection对象
+     * @throws java.sql.SQLException SQL错误捕获
      */
     public static Connection getConnection() throws SQLException {
         if (null == connection || !connection.isValid(3)) {
@@ -54,8 +53,8 @@ public final class XdbUtil {
     /**
      * 查询多条记录
      *
-     * @param xql
-     * @return
+     * @param xql xql对象
+     * @return 查询结果JSONArray
      */
     public static JSONArray readList(XqlUtil xql) {
 
@@ -65,8 +64,8 @@ public final class XdbUtil {
     /**
      * 查询单条记录
      *
-     * @param xql
-     * @return
+     * @param xql xql对象
+     * @return 查询结果JSONObject
      */
     public static JSONObject readOne(XqlUtil xql) {
         xql.setLimit("0,1");
@@ -78,9 +77,9 @@ public final class XdbUtil {
     /**
      * 查询单条记录单值
      *
-     * @param xql
-     * @param key
-     * @return
+     * @param xql xql对象
+     * @param key 查询字段
+     * @return 查询结果String
      */
     public static String readValue(XqlUtil xql, String key) {
         xql.setLimit("0,1");
@@ -93,8 +92,8 @@ public final class XdbUtil {
     /**
      * 查询记录, 输入sql
      *
-     * @param sql
-     * @return
+     * @param sql 查询SQL语句
+     * @return 查询结果JSONArray
      */
     public static JSONArray select(String sql) {
         JSONArray jaList;
@@ -107,8 +106,8 @@ public final class XdbUtil {
     /**
      * 执行SQL，查
      *
-     * @param sql
-     * @return
+     * @param sql 查询SQL语句
+     * @return 查询结果JSONArray
      */
     public static JSONArray executeQuery(String sql) {
         Statement statement = null;
@@ -156,8 +155,8 @@ public final class XdbUtil {
     /**
      * 新增记录
      *
-     * @param xql
-     * @return
+     * @param xql xql对象
+     * @return 新增记录主键
      */
     public static String instert(XqlUtil xql) {
         String key;
@@ -170,8 +169,8 @@ public final class XdbUtil {
     /**
      * 删除记录
      *
-     * @param xql
-     * @return
+     * @param xql xql对象
+     * @return 删除记录数
      */
     public static Integer delete(XqlUtil xql) {
         Integer integer;
@@ -184,8 +183,8 @@ public final class XdbUtil {
     /**
      * 修改记录
      *
-     * @param xql
-     * @return
+     * @param xql xql对象
+     * @return 修改记录数
      */
     public static Integer update(XqlUtil xql) {
         Integer integer;
@@ -198,8 +197,8 @@ public final class XdbUtil {
     /**
      * 执行SQL，增、删、改
      *
-     * @param sql
-     * @return
+     * @param sql SQL语句
+     * @return 执行结果
      */
     public static Integer executeUpdate(String sql) {
         Statement statement = null;
@@ -224,8 +223,8 @@ public final class XdbUtil {
     /**
      * 执行SQL，增
      *
-     * @param sql
-     * @return
+     * @param sql SQL语句
+     * @return 执行结果
      */
     public static String executeInsert(String sql) {
         Statement statement = null;
@@ -262,7 +261,7 @@ public final class XdbUtil {
     /**
      * 执行SQL，批量，无返回
      *
-     * @param list
+     * @param list SQL语句List
      */
     public static void executeBatchStaticSQL(List<String> list) {
         Statement statement = null;
@@ -335,7 +334,7 @@ public final class XdbUtil {
     /**
      * 新增记录，批量
      *
-     * @param listXql
+     * @param listXql Xql对象List
      */
     public static void instertList(List<XqlUtil> listXql) {
         List<String> list = new ArrayList<>();

@@ -123,7 +123,7 @@ public class XqlUtil {
     }
 
     /**
-     * @return
+     * @return sql语句
      */
     public String getSelectSql() {
         String sql = "";
@@ -160,7 +160,7 @@ public class XqlUtil {
     }
 
     /**
-     * @return
+     * @return sql语句
      */
     public String getDeleteSql() {
         String sql = "";
@@ -183,7 +183,7 @@ public class XqlUtil {
     }
 
     /**
-     * @return
+     * @return sql语句
      */
     public String getUpdateSql() {
         String sql = "";
@@ -221,7 +221,7 @@ public class XqlUtil {
     }
 
     /**
-     * @return
+     * @return sql语句
      */
     public String getInsertSql() {
         String sql = "";
@@ -257,8 +257,8 @@ public class XqlUtil {
     }
 
     /**
-     * @param sql
-     * @return
+     * @param sql sql语句
+     * @return 处理后的sql语句
      */
     public String escapeSql(String sql) {
 
