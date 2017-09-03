@@ -1,4 +1,4 @@
-# eJava
+eJava
 ============
 
 A [Servlet API](http://docs.oracle.com/javaee/6/api/javax/servlet/package-summary.html) Framework.
@@ -17,9 +17,14 @@ How to test:
         cd eJava
         mvn install
 
-Attention
+Maven 使用
 ---------
 
+    <dependency>
+        <groupId>com.erlitech</groupId>
+        <artifactId>ejava</artifactId>
+        <version>1.0</version>
+    </dependency>
 
        
 ## License
