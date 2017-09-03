@@ -89,19 +89,19 @@ public class ApiController {
                 ApiLogService.updateLog(apiLog, joOutData);
             }
         } catch (ClassNotFoundException ex) {
-            LOGGER.log(Level.SEVERE, "Class：" + apiArray[0] + " 不存在", ex);
+            LOGGER.log(Level.SEVERE, "Class：" + apiArray[0] + " 不存在。" + ex);
         } catch (NoSuchMethodException ex) {
-            LOGGER.log(Level.SEVERE, "Method：" + apiArray[1] + " 不存在", ex);
+            LOGGER.log(Level.SEVERE, "Method：" + apiArray[1] + " 不存在。" + ex);
         } catch (SecurityException ex) {
-            LOGGER.log(Level.SEVERE, "Security错误", ex);
+            LOGGER.log(Level.SEVERE, "Security错误。" + ex);
         } catch (InstantiationException ex) {
-            LOGGER.log(Level.SEVERE, "Instantiation错误", ex);
+            LOGGER.log(Level.SEVERE, "Instantiation错误。" + ex);
         } catch (IllegalAccessException ex) {
-            LOGGER.log(Level.SEVERE, "IllegalAccess错误", ex);
+            LOGGER.log(Level.SEVERE, "IllegalAccess错误。" + ex);
         } catch (IllegalArgumentException ex) {
-            LOGGER.log(Level.SEVERE, "IllegalArgument错误", ex);
+            LOGGER.log(Level.SEVERE, "IllegalArgument错误。" + ex);
         } catch (InvocationTargetException ex) {
-            LOGGER.log(Level.SEVERE, "InvocationTarget错误", ex);
+            LOGGER.log(Level.SEVERE, "InvocationTarget错误。" + ex);
         } finally {
             XdbUtil.closeConnection();
         }

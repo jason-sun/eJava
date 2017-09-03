@@ -41,9 +41,9 @@ public final class XdbUtil {
                 connection = DriverManager.getConnection(url, username, password);
                 connection.isValid(5);
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "数据库连接失败", e);
+                LOGGER.log(Level.SEVERE, "数据库连接失败。" + e);
             } catch (ClassNotFoundException e) {
-                LOGGER.log(Level.SEVERE, "数据库驱动加载失败", e);
+                LOGGER.log(Level.SEVERE, "数据库驱动加载失败。" + e);
             }
         }
 
@@ -143,7 +143,7 @@ public final class XdbUtil {
             resultSet.close();
             statement.close();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "SQL执行错误", e);
+            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
         } finally {
             closeResultSet(resultSet);
             closeStatement(statement);
@@ -212,7 +212,7 @@ public final class XdbUtil {
             integer = statement.executeUpdate(sql);
             statement.close();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "SQL执行错误", e);
+            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
         } finally {
             closeStatement(statement);
         }
@@ -249,7 +249,7 @@ public final class XdbUtil {
             resultSet.close();
             statement.close();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "SQL执行错误", e);
+            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
         } finally {
             closeResultSet(resultSet);
             closeStatement(statement);
@@ -282,10 +282,10 @@ public final class XdbUtil {
             try {
                 connection.rollback();
             } catch (SQLException e1) {
-                LOGGER.log(Level.SEVERE, "操作回滚错误", e1);
+                LOGGER.log(Level.SEVERE, "操作回滚错误。" + e1);
             }
 
-            LOGGER.log(Level.SEVERE, "SQL执行错误", e);
+            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
         } finally {
             closeStatement(statement);
         }
@@ -299,7 +299,7 @@ public final class XdbUtil {
             try {
                 statement.close();
             } catch (SQLException e) {
-                LOGGER.log(Level.WARNING, "Statement 关闭错误", e);
+                LOGGER.log(Level.WARNING, "Statement 关闭错误。" + e);
             }
         }
     }
@@ -312,7 +312,7 @@ public final class XdbUtil {
             try {
                 resultSet.close();
             } catch (SQLException e) {
-                LOGGER.log(Level.WARNING, "ResultSet 关闭错误", e);
+                LOGGER.log(Level.WARNING, "ResultSet 关闭错误。" + e);
             }
         }
     }
@@ -326,7 +326,7 @@ public final class XdbUtil {
 //                connection.close();
 //                connection = null;
 //            } catch (SQLException e) {
-//                LOGGER.log(Level.WARNING, "connection 关闭错误", e);
+//                LOGGER.log(Level.WARNING, "connection 关闭错误。" + e);
 //            }
 //        }
     }
