@@ -34,7 +34,7 @@ public class XLoggerUtil {
      * 获取日志对象
      *
      * @param className 类名
-     * @return
+     * @return Logger
      */
     public static Logger getLogger(String className) {
         Logger logger = Logger.getLogger(className);

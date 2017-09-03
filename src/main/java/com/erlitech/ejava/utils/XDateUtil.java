@@ -14,7 +14,7 @@ public final class XDateUtil {
     /**
      * 获取当前时间戳
      *
-     * @return
+     * @return 当前时间戳
      */
     public static long getTimeStamp() {
         Date date = new Date();
@@ -25,7 +25,7 @@ public final class XDateUtil {
     /**
      * 获取当前时间, 格式化
      *
-     * @return
+     * @return 当时间时间
      */
     public static String getDateTime() {
         Date date = new Date();

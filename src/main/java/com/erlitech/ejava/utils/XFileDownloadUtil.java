@@ -9,7 +9,7 @@ import java.util.logging.Logger;
  * 文件下载类
  *
  * @author 孙振强
- * @date 2017-08-15
+ * @since 2017-08-15
  */
 public class XFileDownloadUtil {
 
@@ -18,8 +18,8 @@ public class XFileDownloadUtil {
     /**
      * 获取文件类型（后缀）
      *
-     * @param fileName
-     * @return
+     * @param fileName 文件名
+     * @return 文件后缀
      */
     public static String getFileType(String fileName) {
         String fileType;
@@ -32,10 +32,10 @@ public class XFileDownloadUtil {
     }
 
     /**
-     * 获取文件的MIMI类型
+     * 获取文件的MIME类型
      *
-     * @param fileName
-     * @return String
+     * @param fileName 文件名
+     * @return String 文件mime类型
      */
     public static String getFileMime(String fileName) {
         String fileType = getFileType(fileName);
@@ -133,10 +133,10 @@ public class XFileDownloadUtil {
     /**
      * 文件下载
      *
-     * @param filePath
-     * @param fileName
-     * @param response
-     * @throws Exception
+     * @param filePath 文件路径
+     * @param fileName 文件名称
+     * @param response HttpServletResponse
+     * @throws IOException 异常处理
      */
     public static void fileDownload(String filePath, String fileName, HttpServletResponse response) throws IOException {
         File file = new File(filePath);

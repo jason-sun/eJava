@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  *
  * @author 孙振强
  * @version 1.0
- * @date 2017-08-15
+ * @since 2017-08-15
  */
 public class XPropertyUtil {
 
@@ -41,9 +41,9 @@ public class XPropertyUtil {
     /**
      * 根据Key读取Value
      *
-     * @param key
-     * @param fileName
-     * @return
+     * @param key 键
+     * @param fileName 文件名
+     * @return 值
      */
     public static String getProperty(String key, String fileName) {
         if (!PROPERTIES.containsKey(fileName)) {
