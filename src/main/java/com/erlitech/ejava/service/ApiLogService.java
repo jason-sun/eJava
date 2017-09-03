@@ -18,11 +18,11 @@ public class ApiLogService {
     /**
      * 获取共享数据中心接口结果
      *
-     * @param joInData 输入JSONObject
+     * @param joInData  输入JSONObject
      * @param joOutData 输出JSONObject
-     * @param ip 访问ip
+     * @param ip        访问ip
      * @param userAgent 访问userAgent
-     * @param referer 访问来源
+     * @param referer   访问来源
      * @return Log对象
      */
     public static JSONObject addLog(JSONObject joInData, JSONObject joOutData, String ip, String userAgent, String referer) {
@@ -34,12 +34,11 @@ public class ApiLogService {
             referer = "";
         }
 
-        log.put("ctime", XDateUtil.getDateTime());
-        log.put("ctime2", XDateUtil.getTimeStamp());
+        log.put("inTime", XDateUtil.getTimeStamp());
         log.put("input", joInData.toString());
         log.put("output", joOutData.toString());
         log.put("ip", ip);
-        log.put("user_agent", userAgent);
+        log.put("userAgent", userAgent);
         log.put("referer", referer);
 
         xql.setTable(LOG_TABLE);
@@ -56,21 +55,21 @@ public class ApiLogService {
     /**
      * 获取共享数据中心接口结果
      *
-     * @param oldLog 之前Log
-     * @param joOutData  输出JSONObject
+     * @param oldLog    之前Log
+     * @param joOutData 输出JSONObject
      */
     public static void updateLog(JSONObject oldLog, JSONObject joOutData) {
         JSONObject log = new JSONObject();
         XqlUtil xql = new XqlUtil();
+        Long outTime = XDateUtil.getTimeStamp();
 
-        log.put("utime", XDateUtil.getDateTime());
-        log.put("utime2", XDateUtil.getTimeStamp());
+        log.put("outTime", outTime);
         log.put("output", joOutData.toString());
-        log.put("runtime", XDateUtil.getTimeStamp() - oldLog.getLong("ctime2"));
+        log.put("runtime", outTime - oldLog.getLong("inTime"));
 
         xql.setTable(LOG_TABLE);
         xql.setValue(log);
-        xql.setWhere("id=\"" + oldLog.getString("id") + "\"");
+        xql.setWhere("id='" + oldLog.getString("id") + "'");
 
         XdbUtil.update(xql);
     }
