@@ -5,20 +5,7 @@ A [Servlet API](http://docs.oracle.com/javaee/6/api/javax/servlet/package-summar
 
 一个极轻量的JAVA框架，适合开发API，采用Maven。
 
-How to test:
-
-* Clone eJava repo
-
-        git clone https://github.com/jason-sun/eJava.git
-        cd eJava
-
-* Install eJava locally with maven
-
-        cd eJava
-        mvn install
-
-Maven 使用
----------
+How to use it:
 
     <dependency>
         <groupId>com.erlitech</groupId>
