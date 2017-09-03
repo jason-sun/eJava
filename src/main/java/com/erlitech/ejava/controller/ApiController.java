@@ -28,6 +28,7 @@ public class ApiController {
     private static final String PACKAGE = XPropertyUtil.getProperty("package", "controller");
     private static final String ENCODE = XPropertyUtil.getProperty("encode", "controller");
     private static final String ALLOW_ACCESS = XPropertyUtil.getProperty("allowAccess", "controller");
+    private static final String ALLOW_DB_LOG = XPropertyUtil.getProperty("allowDbLog", "controller");
 
     /**
      * @param args the command line arguments
@@ -72,7 +73,11 @@ public class ApiController {
         Method xMethod;
 
         try {
-            JSONObject apiLog = ApiLogService.addLog(joInData, joOutData, getIp(request), request.getHeader("User-Agent"), request.getHeader("Referer"));
+            JSONObject apiLog = new JSONObject();
+
+            if (ALLOW_DB_LOG.equals("1")) {
+                apiLog = ApiLogService.addLog(joInData, joOutData, getIp(request), request.getHeader("User-Agent"), request.getHeader("Referer"));
+            }
 
             //一般尽量采用这种形式
             xService = Class.forName(PACKAGE + "." + apiArray[0] + "Controller");
@@ -80,7 +85,9 @@ public class ApiController {
             joOutData = (JSONObject) xMethod.invoke(xService.newInstance(), joInData, request, response);
             outData = joOutData.toString();
 
-            ApiLogService.updateLog(apiLog, joOutData);
+            if (ALLOW_DB_LOG.equals("1")) {
+                ApiLogService.updateLog(apiLog, joOutData);
+            }
         } catch (ClassNotFoundException ex) {
             LOGGER.log(Level.SEVERE, "Class：" + apiArray[0] + " 不存在", ex);
         } catch (NoSuchMethodException ex) {
@@ -114,10 +121,11 @@ public class ApiController {
 
             out.print(outData);
         } catch (IOException e) {
+            LOGGER.log(Level.INFO, "output error.");
         }
     }
 
-    protected static String getIp(HttpServletRequest request) {
+    private static String getIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
 
         if (StringUtils.isNotEmpty(ip) && !"unKnown".equalsIgnoreCase(ip)) {
@@ -138,7 +146,7 @@ public class ApiController {
         return request.getRemoteAddr();
     }
 
-    public static boolean requestAllowAccess(HttpServletRequest request, HttpServletResponse response) {
+    private static boolean requestAllowAccess(HttpServletRequest request, HttpServletResponse response) {
         if (ALLOW_ACCESS == null || ALLOW_ACCESS.equals("")) {
             return true;
         }
