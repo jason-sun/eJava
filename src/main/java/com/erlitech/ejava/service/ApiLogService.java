@@ -2,6 +2,7 @@ package com.erlitech.ejava.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.erlitech.ejava.utils.XDateUtil;
+import com.erlitech.ejava.utils.XPropertyUtil;
 import com.erlitech.ejava.utils.XdbUtil;
 import com.erlitech.ejava.utils.XqlUtil;
 
@@ -11,6 +12,8 @@ import com.erlitech.ejava.utils.XqlUtil;
  * @author 孙振强
  */
 public class ApiLogService {
+
+    private static final String LOG_TABLE = XPropertyUtil.getProperty("dbLogTable", "controller");
 
     /**
      * 获取共享数据中心接口结果
@@ -39,7 +42,7 @@ public class ApiLogService {
         log.put("user_agent", userAgent);
         log.put("referer", referer);
 
-        xql.setTable("sf_api_log");
+        xql.setTable(LOG_TABLE);
         xql.setValue(log);
 
         id = XdbUtil.instert(xql);
@@ -65,7 +68,7 @@ public class ApiLogService {
         log.put("output", joOutData.toString());
         log.put("runtime", XDateUtil.getTimeStamp() - oldLog.getLong("ctime2"));
 
-        xql.setTable("sf_api_log");
+        xql.setTable(LOG_TABLE);
         xql.setValue(log);
         xql.setWhere("id=\"" + oldLog.getString("id") + "\"");
 
