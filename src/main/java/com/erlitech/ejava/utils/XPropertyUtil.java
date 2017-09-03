@@ -34,7 +34,7 @@ public class XPropertyUtil {
             }
             LOGGER.info("properties文件: " + fileName + "，加载完成");
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "properties文件: " + fileName + ".properties，IO错误", e);
+            LOGGER.log(Level.SEVERE, "properties文件: " + fileName + ".properties，IO错误。" + e);
         }
     }
 
