@@ -6,7 +6,7 @@ import com.erlitech.ejava.utils.XEncoder;
 import com.erlitech.ejava.utils.XLoggerUtil;
 import com.erlitech.ejava.utils.XPropertyUtil;
 import com.erlitech.ejava.utils.XdbUtil;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
