@@ -70,7 +70,15 @@ public final class XdbUtil {
     public static JSONObject readOne(XqlUtil xql) {
         xql.setLimit("0,1");
         JSONArray jaList = select(xql.getSelectSql());
-        JSONObject joInfo = (JSONObject) jaList.get(0);
+
+        JSONObject joInfo;
+
+        if (jaList.isEmpty()) {
+            joInfo = new JSONObject();
+        } else {
+            joInfo = (JSONObject) jaList.get(0);
+        }
+
         return joInfo;
     }
 
@@ -82,10 +90,16 @@ public final class XdbUtil {
      * @return 查询结果String
      */
     public static String readValue(XqlUtil xql, String key) {
-        xql.setLimit("0,1");
-        JSONArray jaList = select(xql.getSelectSql());
-        JSONObject joInfo = (JSONObject) jaList.get(0);
-        String value = joInfo.getString(key);
+        JSONObject joInfo = readOne(xql);
+
+        String value;
+
+        if (joInfo.isEmpty()) {
+            value = "";
+        } else {
+            value = joInfo.getString(key);
+        }
+
         return value;
     }
 
