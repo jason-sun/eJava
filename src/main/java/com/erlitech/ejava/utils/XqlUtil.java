@@ -1,8 +1,8 @@
 package com.erlitech.ejava.utils;
 
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -263,8 +263,7 @@ public class XqlUtil {
     public String escapeSql(String sql) {
 
         if (StringUtils.isNotEmpty(sql)) {
-//            sql = StringEscapeUtils.escapeSql(sql);  //lang3中不支持了
-            sql = StringEscapeUtils.escapeJava(sql);
+            sql = StringEscapeUtils.escapeSql(sql);  //lang3中不支持了
         }
 
         return sql;

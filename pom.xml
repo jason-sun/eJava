@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.erlitech</groupId>
     <artifactId>ejava</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <name>ejava</name>
     <url>https://github.com/jason-sun/eJava</url>
     <description>A Servlet API Framework.</description>
@@ -87,9 +87,9 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.5</version>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
