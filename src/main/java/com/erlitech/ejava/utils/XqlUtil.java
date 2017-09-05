@@ -264,6 +264,7 @@ public class XqlUtil {
 
         if (StringUtils.isNotEmpty(sql)) {
             sql = StringEscapeUtils.escapeSql(sql);  //lang3中不支持了
+            sql = sql.replaceAll("\"","\\\\\"");
         }
 
         return sql;
