@@ -141,7 +141,7 @@ public final class XdbUtil {
                 JSONObject joInfo = new JSONObject();
 
                 for (int i = 0; i < colsLen; i++) {
-                    String key = metaData.getColumnName(i + 1);
+                    String key = metaData.getColumnLabel(i + 1);
                     Object value = resultSet.getObject(key);
 
                     if (value == null) {
