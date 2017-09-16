@@ -104,6 +104,20 @@ public final class XdbUtil {
     }
 
     /**
+     * 查询记录数, 输入xql
+     *
+     * @param xql xql对象
+     * @return 查询结果Integer
+     */
+    public static Integer readNum(XqlUtil xql) {
+        xql.setField("COUNT(*) AS num");
+
+        String num = readValue(xql, "num");
+
+        return Integer.valueOf(num);
+    }
+
+    /**
      * 查询记录, 输入sql
      *
      * @param sql 查询SQL语句
@@ -164,6 +178,38 @@ public final class XdbUtil {
         }
 
         return jaList;
+    }
+
+    /**
+     * 查询记录数, 输入sql
+     *
+     * @param sql 查询SQL语句
+     * @return 查询结果Integer
+     */
+    public static Integer readNumBySql(String sql) {
+        Statement statement = null;
+        ResultSet resultSet = null;
+        Integer num = 0;
+
+        LOGGER.log(Level.INFO, sql);
+
+        try {
+            getConnection();
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(sql);
+            resultSet.last();
+            num = resultSet.getRow();
+
+            resultSet.close();
+            statement.close();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
+        } finally {
+            closeResultSet(resultSet);
+            closeStatement(statement);
+        }
+
+        return num;
     }
 
     /**
