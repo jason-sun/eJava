@@ -260,7 +260,7 @@ public class XqlUtil {
      * @param sql sql语句
      * @return 处理后的sql语句
      */
-    public String escapeSql(String sql) {
+    public static String escapeSql(String sql) {
 
         if (StringUtils.isNotEmpty(sql)) {
             sql = StringEscapeUtils.escapeSql(sql);  //lang3中不支持了
