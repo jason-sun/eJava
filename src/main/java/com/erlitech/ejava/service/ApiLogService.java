@@ -44,7 +44,7 @@ public class ApiLogService {
         xql.setTable(LOG_TABLE);
         xql.setValue(log);
 
-        id = XdbUtil.instert(xql);
+        id = XdbUtil.insert(xql);
 
         log.put("id", id);
 

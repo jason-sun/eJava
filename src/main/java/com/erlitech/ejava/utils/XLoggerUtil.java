@@ -37,9 +37,8 @@ public class XLoggerUtil {
      * @return Logger
      */
     public static Logger getLogger(String className) {
-        Logger logger = Logger.getLogger(className);
 
-        return logger;
+        return Logger.getLogger(className);
     }
 
 }

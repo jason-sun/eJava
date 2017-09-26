@@ -19,6 +19,7 @@ public final class XdbUtil {
     private static final Logger LOGGER = XLoggerUtil.getLogger(XdbUtil.class.getName());
     public static String propertyName = "jdbc";
     private static Connection connection = null;
+    public static String allowResultNull = "1";
 
     private XdbUtil() {
     }
@@ -26,15 +27,15 @@ public final class XdbUtil {
     /**
      * 获得数据库的连接
      *
-     * @return connection对象
      * @throws java.sql.SQLException SQL错误捕获
      */
-    public static Connection getConnection() throws SQLException {
+    public static void getConnection() throws SQLException {
         if (null == connection || !connection.isValid(3)) {
             String url = XPropertyUtil.getProperty("url", propertyName);
             String username = XPropertyUtil.getProperty("username", propertyName);
             String password = XPropertyUtil.getProperty("password", propertyName);
             String driver = XPropertyUtil.getProperty("driver", propertyName);
+            allowResultNull = XPropertyUtil.getProperty("allowResultNull", propertyName);
 
             try {
                 Class.forName(driver);
@@ -46,8 +47,6 @@ public final class XdbUtil {
                 LOGGER.log(Level.SEVERE, "数据库驱动加载失败。" + e);
             }
         }
-
-        return connection;
     }
 
     /**
@@ -155,10 +154,24 @@ public final class XdbUtil {
                 JSONObject joInfo = new JSONObject();
 
                 for (int i = 0; i < colsLen; i++) {
+                    String type = metaData.getColumnTypeName(i + 1);
                     String key = metaData.getColumnLabel(i + 1);
-                    Object value = resultSet.getObject(key);
+                    Object value;
 
-                    if (value == null) {
+                    switch (type) {
+                        case "DATE":
+                        case "TIME":
+                        case "DATETIME":
+                        case "TIMESTAMP":
+                            value = resultSet.getString(key);
+                            break;
+                        default:
+                            value = resultSet.getObject(key);
+                            break;
+                    }
+
+                    // 如果为null，则默认为空
+                    if ("0".equals(allowResultNull) && null == value) {
                         value = "";
                     }
 
@@ -218,7 +231,7 @@ public final class XdbUtil {
      * @param xql xql对象
      * @return 新增记录主键
      */
-    public static String instert(XqlUtil xql) {
+    public static String insert(XqlUtil xql) {
         String key;
 
         key = executeInsert(xql.getInsertSql());
@@ -381,22 +394,22 @@ public final class XdbUtil {
      * 关闭Connection
      */
     public static void closeConnection() {
-//        if (connection != null) {
-//            try {
-//                connection.close();
-//                connection = null;
-//            } catch (SQLException e) {
-//                LOGGER.log(Level.WARNING, "connection 关闭错误。" + e);
-//            }
-//        }
+        if (connection != null) {
+            try {
+                connection.close();
+                connection = null;
+            } catch (SQLException e) {
+                LOGGER.log(Level.WARNING, "connection 关闭错误。" + e);
+            }
+        }
     }
 
     /**
-     * 新增记录，批量
+     * 新增记录，批量Xql
      *
      * @param listXql Xql对象List
      */
-    public static void instertList(List<XqlUtil> listXql) {
+    public static void insertList(List<XqlUtil> listXql) {
         List<String> list = new ArrayList<>();
 
         for (XqlUtil xql : listXql) {
@@ -404,5 +417,31 @@ public final class XdbUtil {
         }
 
         executeBatchStaticSQL(list);
+    }
+
+    /**
+     * 新增记录，批量数据
+     *
+     * @param table  表名
+     * @param jaList 数据 JSONArray
+     */
+    public static void insertJaListWithTableName(String table, JSONArray jaList) {
+        if (jaList.isEmpty()) {
+            return;
+        }
+
+        List<XqlUtil> list = new ArrayList<>();
+
+        for (Object obj : jaList) {
+            JSONObject joInfo = (JSONObject) obj;
+
+            XqlUtil xql = new XqlUtil();
+            xql.setTable(table);
+            xql.setValue(joInfo);
+
+            list.add(xql);
+        }
+
+        insertList(list);
     }
 }
