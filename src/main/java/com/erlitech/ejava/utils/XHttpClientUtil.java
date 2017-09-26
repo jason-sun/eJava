@@ -27,8 +27,7 @@ import java.util.Map;
 public class XHttpClientUtil {
 
     private static PoolingHttpClientConnectionManager cm;
-    private static String EMPTY_STR = "";
-    private static String UTF8 = "UTF-8";
+    public static String ENCODE_TYPE = "UTF-8";
 
     private static void init() {
         if (cm == null) {
@@ -90,7 +89,7 @@ public class XHttpClientUtil {
     public static String httpPostRequest(String url, Map<String, Object> params) throws UnsupportedEncodingException {
         HttpPost httpPost = new HttpPost(url);
         ArrayList<NameValuePair> pairs = covertParams2NVPS(params);
-        httpPost.setEntity(new UrlEncodedFormEntity(pairs, UTF8));
+        httpPost.setEntity(new UrlEncodedFormEntity(pairs, ENCODE_TYPE));
         return getResult(httpPost);
     }
 
@@ -102,13 +101,13 @@ public class XHttpClientUtil {
         }
 
         ArrayList<NameValuePair> pairs = covertParams2NVPS(params);
-        httpPost.setEntity(new UrlEncodedFormEntity(pairs, UTF8));
+        httpPost.setEntity(new UrlEncodedFormEntity(pairs, ENCODE_TYPE));
 
         return getResult(httpPost);
     }
 
     private static ArrayList<NameValuePair> covertParams2NVPS(Map<String, Object> params) {
-        ArrayList<NameValuePair> pairs = new ArrayList<NameValuePair>();
+        ArrayList<NameValuePair> pairs = new ArrayList<>();
         for (Map.Entry<String, Object> param : params.entrySet()) {
             pairs.add(new BasicNameValuePair(param.getKey(), param.getValue().toString()));
         }
@@ -140,10 +139,9 @@ public class XHttpClientUtil {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-
         }
 
+        String EMPTY_STR = "";
         return EMPTY_STR;
     }
 

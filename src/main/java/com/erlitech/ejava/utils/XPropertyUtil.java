@@ -41,7 +41,7 @@ public class XPropertyUtil {
     /**
      * 根据Key读取Value
      *
-     * @param key 键
+     * @param key      键
      * @param fileName 文件名
      * @return 值
      */

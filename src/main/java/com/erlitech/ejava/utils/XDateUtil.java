@@ -18,8 +18,7 @@ public final class XDateUtil {
      */
     public static long getTimeStamp() {
         Date date = new Date();
-        long timestamp = date.getTime();
-        return timestamp;
+        return date.getTime();
     }
 
     /**
@@ -30,8 +29,7 @@ public final class XDateUtil {
     public static String getDateTime() {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String datetime = formatter.format(date);
 
-        return datetime;
+        return formatter.format(date);
     }
 }

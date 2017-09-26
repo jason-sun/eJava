@@ -24,6 +24,20 @@ public class XqlUtil {
     private String group;
     private String limit;
 
+    /**
+     * @param sql sql语句
+     * @return 处理后的sql语句
+     */
+    public static String escapeSql(String sql) {
+
+        if (StringUtils.isNotEmpty(sql)) {
+            sql = StringEscapeUtils.escapeSql(sql);  //lang3中不支持了
+            sql = sql.replaceAll("\"", "\\\\\"");
+        }
+
+        return sql;
+    }
+
     //    public XqlUtil() {
 //        // TODO Auto-generated constructor stub
 //    }
@@ -252,20 +266,6 @@ public class XqlUtil {
         sql += "INSERT INTO " + this.getTable();
         sql += " (" + StringUtils.join(listField.toArray(), ",") + ")";
         sql += " VALUES (" + StringUtils.join(listValue.toArray(), ",") + ")";
-
-        return sql;
-    }
-
-    /**
-     * @param sql sql语句
-     * @return 处理后的sql语句
-     */
-    public static String escapeSql(String sql) {
-
-        if (StringUtils.isNotEmpty(sql)) {
-            sql = StringEscapeUtils.escapeSql(sql);  //lang3中不支持了
-            sql = sql.replaceAll("\"","\\\\\"");
-        }
 
         return sql;
     }

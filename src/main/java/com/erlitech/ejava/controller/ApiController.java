@@ -31,18 +31,9 @@ public class ApiController {
     private static final String ALLOW_DB_LOG = XPropertyUtil.getProperty("allowDbLog", "controller");
 
     /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-//        String inData = "{\"api\":\"RecordService.mergeRecordFile\"}";
-//        String test = router(inData, );
-//        System.out.println(test);
-    }
-
-    /**
      * 路由
      *
-     * @param request HttpServletRequest
+     * @param request  HttpServletRequest
      * @param response HttpServletResponse
      */
     public static void router(HttpServletRequest request, HttpServletResponse response) {
