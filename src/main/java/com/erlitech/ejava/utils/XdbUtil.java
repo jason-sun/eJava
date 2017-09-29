@@ -31,11 +31,11 @@ public final class XdbUtil {
      */
     public static void getConnection() throws SQLException {
         if (null == connection || !connection.isValid(3)) {
-            String url = XPropertyUtil.getProperty("url", propertyName);
-            String username = XPropertyUtil.getProperty("username", propertyName);
-            String password = XPropertyUtil.getProperty("password", propertyName);
-            String driver = XPropertyUtil.getProperty("driver", propertyName);
-            allowResultNull = XPropertyUtil.getProperty("allowResultNull", propertyName);
+            String url = XPropertyUtil.getProperty("jdbc_url", propertyName);
+            String username = XPropertyUtil.getProperty("jdbc_username", propertyName);
+            String password = XPropertyUtil.getProperty("jdbc_password", propertyName);
+            String driver = XPropertyUtil.getProperty("xdb_driver", propertyName);
+            allowResultNull = XPropertyUtil.getProperty("xdb_allowResultNull", propertyName);
 
             try {
                 Class.forName(driver);
