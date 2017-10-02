@@ -117,7 +117,7 @@ public class ApiController {
             joOutData.put("error", 1710021443);
             joOutData.put("errorMessage", ex.getCause().getLocalizedMessage().toString());
 
-            if (ENCODE.equals("1")) {
+            if (DEBUG.equals("1")) {
                 joOutData.put("errorForDebug", ex.getCause());
             }
 
