@@ -112,29 +112,9 @@ public class ApiController {
             joOutData.put("error", 1710021442);
             joOutData.put("errorMessage", "Method：" + apiArray[0] + "." + apiArray[1] + " 不存在。");
             LOGGER.severe(joOutData.toString());
-        } catch (SecurityException ex) {
+        } catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             joOutData.put("error", 1710021443);
-            joOutData.put("errorMessage", "Security错误。");
-            joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
-            LOGGER.severe(joOutData.toString());
-        } catch (InstantiationException ex) {
-            joOutData.put("error", 1710021444);
-            joOutData.put("errorMessage", "Instantiation错误。");
-            joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
-            LOGGER.severe(joOutData.toString());
-        } catch (IllegalAccessException ex) {
-            joOutData.put("error", 1710021445);
-            joOutData.put("errorMessage", "IllegalAccess错误。");
-            joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
-            LOGGER.severe(joOutData.toString());
-        } catch (IllegalArgumentException ex) {
-            joOutData.put("error", 1710021446);
-            joOutData.put("errorMessage", "IllegalArgument错误。");
-            joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
-            LOGGER.severe(joOutData.toString());
-        } catch (InvocationTargetException ex) {
-            joOutData.put("error", 1710021447);
-            joOutData.put("errorMessage", "InvocationTarget错误。");
+            joOutData.put("errorMessage", ex.getCause());
             joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
             LOGGER.severe(joOutData.toString());
         } finally {
