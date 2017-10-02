@@ -27,6 +27,7 @@ public class ApiController {
     public static final Logger LOGGER = XLoggerUtil.getLogger(ApiController.class.getName());
     public static final String PACKAGE = XPropertyUtil.getProperty("package", "controller");
     public static final String ENCODE = XPropertyUtil.getProperty("encode", "controller");
+    public static final String DEBUG = XPropertyUtil.getProperty("debug", "controller");
     public static final String ALLOW_ACCESS = XPropertyUtil.getProperty("allowAccess", "controller");
     public static final String ALLOW_DB_LOG = XPropertyUtil.getProperty("allowDbLog", "controller");
     public static final String DB_LOG_API_FILTER = XPropertyUtil.getProperty("dbLogApiFilter", "controller");
@@ -114,8 +115,12 @@ public class ApiController {
             LOGGER.severe(joOutData.toString());
         } catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             joOutData.put("error", 1710021443);
-            joOutData.put("errorMessage", ex.getCause());
-            joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
+            joOutData.put("errorMessage", ex.getCause().getLocalizedMessage().toString());
+
+            if (ENCODE.equals("1")) {
+                joOutData.put("errorForDebug", ex.getCause());
+            }
+
             LOGGER.severe(joOutData.toString());
         } finally {
             XdbUtil.closeConnection();
