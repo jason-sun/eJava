@@ -24,11 +24,12 @@ import java.util.logging.Logger;
  */
 public class ApiController {
 
-    private static final Logger LOGGER = XLoggerUtil.getLogger(ApiController.class.getName());
-    private static final String PACKAGE = XPropertyUtil.getProperty("package", "controller");
-    private static final String ENCODE = XPropertyUtil.getProperty("encode", "controller");
-    private static final String ALLOW_ACCESS = XPropertyUtil.getProperty("allowAccess", "controller");
-    private static final String ALLOW_DB_LOG = XPropertyUtil.getProperty("allowDbLog", "controller");
+    public static final Logger LOGGER = XLoggerUtil.getLogger(ApiController.class.getName());
+    public static final String PACKAGE = XPropertyUtil.getProperty("package", "controller");
+    public static final String ENCODE = XPropertyUtil.getProperty("encode", "controller");
+    public static final String ALLOW_ACCESS = XPropertyUtil.getProperty("allowAccess", "controller");
+    public static final String ALLOW_DB_LOG = XPropertyUtil.getProperty("allowDbLog", "controller");
+    public static final String DB_LOG_API_FILTER = XPropertyUtil.getProperty("dbLogApiFilter", "controller");
 
     /**
      * 路由
@@ -41,6 +42,8 @@ public class ApiController {
             return;
         }
 
+        response.setCharacterEncoding("utf-8");
+
         String inData = request.getParameter("inData");
         String outData = "";
 
@@ -48,57 +51,9 @@ public class ApiController {
             inData = XEncoder.decode(inData);
         }
 
-        JSONObject joInData = JSONObject.parseObject(inData);
-        JSONObject joOutData = new JSONObject();
+        outData = invokeApi(inData, request, response);
 
-        String api = joInData.getString("api");
-
-        if (StringUtils.isEmpty(api)) {
-            LOGGER.log(Level.SEVERE, "inData参数api缺失。");
-            return;
-        }
-
-        String apiArray[] = api.split("\\.");
-
-        Class<?> xService;
-        Method xMethod;
-
-        try {
-            JSONObject apiLog = new JSONObject();
-
-            if (ALLOW_DB_LOG.equals("1")) {
-                apiLog = ApiLogService.addLog(joInData, joOutData, getIp(request), request.getHeader("User-Agent"), request.getHeader("Referer"));
-            }
-
-            //一般尽量采用这种形式
-            xService = Class.forName(PACKAGE + "." + apiArray[0] + "Controller");
-            xMethod = xService.getMethod(apiArray[1], JSONObject.class, HttpServletRequest.class, HttpServletResponse.class);
-            joOutData = (JSONObject) xMethod.invoke(xService.newInstance(), joInData, request, response);
-            outData = joOutData.toString();
-
-            if (ALLOW_DB_LOG.equals("1")) {
-                ApiLogService.updateLog(apiLog, joOutData);
-            }
-        } catch (ClassNotFoundException ex) {
-            LOGGER.log(Level.SEVERE, "Class：" + apiArray[0] + " 不存在。" + ex);
-        } catch (NoSuchMethodException ex) {
-            LOGGER.log(Level.SEVERE, "Method：" + apiArray[1] + " 不存在。" + ex);
-        } catch (SecurityException ex) {
-            LOGGER.log(Level.SEVERE, "Security错误。" + ex);
-        } catch (InstantiationException ex) {
-            LOGGER.log(Level.SEVERE, "Instantiation错误。" + ex);
-        } catch (IllegalAccessException ex) {
-            LOGGER.log(Level.SEVERE, "IllegalAccess错误。" + ex);
-        } catch (IllegalArgumentException ex) {
-            LOGGER.log(Level.SEVERE, "IllegalArgument错误。" + ex);
-        } catch (InvocationTargetException ex) {
-            LOGGER.log(Level.SEVERE, "InvocationTarget错误。" + ex);
-        } finally {
-            XdbUtil.closeConnection();
-        }
-
-        // 当为文件下载时，取消文本输出
-        if (joOutData.getString("fileDownload") != null && joOutData.getString("fileDownload").equals("1")) {
+        if (null == outData || "".equals(inData)) {
             return;
         }
 
@@ -116,8 +71,100 @@ public class ApiController {
         }
     }
 
-    private static String getIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
+    public static String invokeApi(String inData, HttpServletRequest request, HttpServletResponse response) {
+        String outData = null;
+
+        JSONObject joInData = JSONObject.parseObject(inData);
+        JSONObject joOutData = new JSONObject();
+
+        String api = joInData.getString("api");
+
+        if (StringUtils.isEmpty(api)) {
+            LOGGER.log(Level.SEVERE, "inData参数api缺失。");
+            return outData;
+        }
+
+
+        JSONObject apiLog = new JSONObject();
+
+        if (ALLOW_DB_LOG.equals("1") && DB_LOG_API_FILTER.indexOf("|" + api + "|") == -1) {
+            apiLog = ApiLogService.addLog(joInData, joOutData, getIp(request), getUserAgent(request), getReferer(request));
+        }
+
+        String apiArray[] = api.split("\\.");
+
+        Class<?> xService;
+        Method xMethod;
+
+        try {
+            String className = apiArray[0];
+            className = className.substring(0, 1).toUpperCase() + className.substring(1);
+
+            //一般尽量采用这种形式
+            xService = Class.forName(PACKAGE + "." + className + "Controller");
+            xMethod = xService.getMethod(apiArray[1], JSONObject.class, HttpServletRequest.class, HttpServletResponse.class);
+            joOutData = (JSONObject) xMethod.invoke(xService.newInstance(), joInData, request, response);
+        } catch (ClassNotFoundException ex) {
+            joOutData.put("error", 1710021441);
+            joOutData.put("errorMessage", "Class：" + apiArray[0] + " 不存在。");
+            LOGGER.severe(joOutData.toString());
+        } catch (NoSuchMethodException ex) {
+            joOutData.put("error", 1710021442);
+            joOutData.put("errorMessage", "Method：" + apiArray[0] + "." + apiArray[1] + " 不存在。");
+            LOGGER.severe(joOutData.toString());
+        } catch (SecurityException ex) {
+            joOutData.put("error", 1710021443);
+            joOutData.put("errorMessage", "Security错误。");
+            joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
+            LOGGER.severe(joOutData.toString());
+        } catch (InstantiationException ex) {
+            joOutData.put("error", 1710021444);
+            joOutData.put("errorMessage", "Instantiation错误。");
+            joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
+            LOGGER.severe(joOutData.toString());
+        } catch (IllegalAccessException ex) {
+            joOutData.put("error", 1710021445);
+            joOutData.put("errorMessage", "IllegalAccess错误。");
+            joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
+            LOGGER.severe(joOutData.toString());
+        } catch (IllegalArgumentException ex) {
+            joOutData.put("error", 1710021446);
+            joOutData.put("errorMessage", "IllegalArgument错误。");
+            joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
+            LOGGER.severe(joOutData.toString());
+        } catch (InvocationTargetException ex) {
+            joOutData.put("error", 1710021447);
+            joOutData.put("errorMessage", "InvocationTarget错误。");
+            joOutData.put("errorDetail", ex.getCause().getStackTrace()[0].toString());
+            LOGGER.severe(joOutData.toString());
+        } finally {
+            XdbUtil.closeConnection();
+        }
+
+
+        if (!apiLog.isEmpty()) {
+            ApiLogService.updateLog(apiLog, joOutData);
+        }
+
+        // 当为文件下载时，取消文本输出
+        if (joOutData.getString("fileDownload") != null && joOutData.getString("fileDownload").equals("1")) {
+            return outData;
+        }
+
+        outData = joOutData.toString();
+
+
+        return outData;
+    }
+
+    public static String getIp(HttpServletRequest request) {
+        String ip = "";
+
+        try {
+            ip = request.getHeader("X-Forwarded-For");
+        } catch (Exception ex) {
+            return "0.0.0.0";
+        }
 
         if (StringUtils.isNotEmpty(ip) && !"unKnown".equalsIgnoreCase(ip)) {
             int index = ip.indexOf(",");
@@ -137,7 +184,23 @@ public class ApiController {
         return request.getRemoteAddr();
     }
 
-    private static boolean requestAllowAccess(HttpServletRequest request, HttpServletResponse response) {
+    public static String getUserAgent(HttpServletRequest request) {
+        try {
+            return request.getHeader("User-Agent");
+        } catch (Exception ex) {
+            return "";
+        }
+    }
+
+    public static String getReferer(HttpServletRequest request) {
+        try {
+            return request.getHeader("Referer");
+        } catch (Exception ex) {
+            return "";
+        }
+    }
+
+    public static boolean requestAllowAccess(HttpServletRequest request, HttpServletResponse response) {
         if (ALLOW_ACCESS == null || ALLOW_ACCESS.equals("")) {
             return true;
         }

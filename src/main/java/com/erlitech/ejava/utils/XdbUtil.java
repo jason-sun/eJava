@@ -14,15 +14,12 @@ import java.util.logging.Logger;
  *
  * @author 孙振强
  */
-public final class XdbUtil {
+public class XdbUtil {
 
     private static final Logger LOGGER = XLoggerUtil.getLogger(XdbUtil.class.getName());
     public static String propertyName = "jdbc";
-    private static Connection connection = null;
     public static String allowResultNull = "1";
-
-    private XdbUtil() {
-    }
+    private static Connection connection = null;
 
     /**
      * 获得数据库的连接

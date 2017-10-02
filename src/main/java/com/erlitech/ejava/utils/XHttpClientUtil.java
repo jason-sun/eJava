@@ -26,8 +26,8 @@ import java.util.Map;
  */
 public class XHttpClientUtil {
 
-    private static PoolingHttpClientConnectionManager cm;
     public static String ENCODE_TYPE = "UTF-8";
+    private static PoolingHttpClientConnectionManager cm;
 
     private static void init() {
         if (cm == null) {
