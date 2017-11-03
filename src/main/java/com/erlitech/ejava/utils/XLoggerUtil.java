@@ -9,25 +9,28 @@ public class XLoggerUtil {
     // 初始化LogManager
     static {
         // 读取配置文件
-        ClassLoader cl = XLoggerUtil.class.getClassLoader();
+        ClassLoader classLoader = XLoggerUtil.class.getClassLoader();
         InputStream inputStream;
 
-        if (cl != null) {
-            inputStream = cl.getResourceAsStream("logger.properties");
+        if (null != classLoader) {
+            inputStream = classLoader.getResourceAsStream("logger.properties");
         } else {
             inputStream = ClassLoader.getSystemResourceAsStream("logger.properties");
         }
 
-        java.util.logging.LogManager logManager = java.util.logging.LogManager.getLogManager();
+        if (null != inputStream) {
+            java.util.logging.LogManager logManager = java.util.logging.LogManager.getLogManager();
 
-        try {
-            // 重新初始化日志属性并重新读取日志配置。
-            logManager.readConfiguration(inputStream);
-        } catch (SecurityException e) {
-            System.err.println(e);
-        } catch (IOException e) {
-            System.err.println(e);
+            try {
+                // 重新初始化日志属性并重新读取日志配置。
+                logManager.readConfiguration(inputStream);
+            } catch (SecurityException e) {
+                System.err.println(e);
+            } catch (IOException e) {
+                System.err.println(e);
+            }
         }
+
     }
 
     /**
