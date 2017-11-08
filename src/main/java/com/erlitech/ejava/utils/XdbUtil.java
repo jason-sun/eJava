@@ -5,13 +5,15 @@ import com.alibaba.fastjson.JSONObject;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * jdbc操作类
- *
+ * V2.0
+ * 2017-11-08
  * @author 孙振强
  */
 public class XdbUtil {
@@ -19,31 +21,36 @@ public class XdbUtil {
     private static final Logger LOGGER = XLoggerUtil.getLogger(XdbUtil.class.getName());
     public static String propertyName = "jdbc";
     public static String allowResultNull = "1";
-    private static Connection connection = null;
+    public static HashMap<String, Connection> connectionMap = new HashMap<>();
 
     /**
      * 获得数据库的连接
      *
      * @throws java.sql.SQLException SQL错误捕获
      */
-    public static void getConnection() throws SQLException {
-        if (null == connection || !connection.isValid(3)) {
-            String url = XPropertyUtil.getProperty("jdbc_url", propertyName);
-            String username = XPropertyUtil.getProperty("jdbc_username", propertyName);
-            String password = XPropertyUtil.getProperty("jdbc_password", propertyName);
-            String driver = XPropertyUtil.getProperty("xdb_driver", propertyName);
-            allowResultNull = XPropertyUtil.getProperty("xdb_allowResultNull", propertyName);
+    public static Connection getConnection(String jdbcName) throws SQLException {
+        Connection connection = null;
+
+        if (null == connectionMap.get(jdbcName) || !connectionMap.get(jdbcName).isValid(3)) {
+            String url = XPropertyUtil.getProperty("jdbc_url", jdbcName);
+            String username = XPropertyUtil.getProperty("jdbc_username", jdbcName);
+            String password = XPropertyUtil.getProperty("jdbc_password", jdbcName);
+            String driver = XPropertyUtil.getProperty("xdb_driver", jdbcName);
+            allowResultNull = XPropertyUtil.getProperty("xdb_allowResultNull", jdbcName);
 
             try {
                 Class.forName(driver);
                 connection = DriverManager.getConnection(url, username, password);
                 connection.isValid(5);
+                connectionMap.put(jdbcName, connection);
             } catch (SQLException e) {
                 LOGGER.log(Level.SEVERE, "数据库连接失败。" + e);
             } catch (ClassNotFoundException e) {
                 LOGGER.log(Level.SEVERE, "数据库驱动加载失败。" + e);
             }
         }
+
+        return connection;
     }
 
     /**
@@ -134,16 +141,18 @@ public class XdbUtil {
      * @return 查询结果JSONArray
      */
     public static JSONArray executeQuery(String sql) {
-        Statement statement = null;
-        ResultSet resultSet = null;
+        return executeQuery(sql, propertyName);
+    }
+
+    public static JSONArray executeQuery(String sql, String jdbcName) {
         JSONArray jaList = new JSONArray();
 
         LOGGER.log(Level.INFO, sql);
 
         try {
-            getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql);
+            Connection connection = getConnection(jdbcName);
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
             ResultSetMetaData metaData = resultSet.getMetaData();
             int colsLen = metaData.getColumnCount();
 
@@ -182,9 +191,6 @@ public class XdbUtil {
             statement.close();
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
-        } finally {
-            closeResultSet(resultSet);
-            closeStatement(statement);
         }
 
         return jaList;
@@ -197,16 +203,19 @@ public class XdbUtil {
      * @return 查询结果Integer
      */
     public static Integer readNumBySql(String sql) {
-        Statement statement = null;
-        ResultSet resultSet = null;
+        return readNumBySql(sql, propertyName);
+    }
+
+    public static Integer readNumBySql(String sql, String jdbcName) {
         Integer num = 0;
 
         LOGGER.log(Level.INFO, sql);
 
         try {
-            getConnection();
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery(sql);
+            Connection connection = getConnection(jdbcName);
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
             resultSet.last();
             num = resultSet.getRow();
 
@@ -214,9 +223,6 @@ public class XdbUtil {
             statement.close();
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
-        } finally {
-            closeResultSet(resultSet);
-            closeStatement(statement);
         }
 
         return num;
@@ -271,20 +277,21 @@ public class XdbUtil {
      * @return 执行结果
      */
     public static Integer executeUpdate(String sql) {
-        Statement statement = null;
+        return executeUpdate(sql, propertyName);
+    }
+
+    public static Integer executeUpdate(String sql, String jdbcName) {
         Integer integer = null;
 
         LOGGER.log(Level.INFO, sql);
 
         try {
-            getConnection();
-            statement = connection.createStatement();
+            Connection connection = getConnection(jdbcName);
+            Statement statement = connection.createStatement();
             integer = statement.executeUpdate(sql);
             statement.close();
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
-        } finally {
-            closeStatement(statement);
         }
 
         return integer;
@@ -297,19 +304,21 @@ public class XdbUtil {
      * @return 执行结果
      */
     public static String executeInsert(String sql) {
-        Statement statement = null;
-        ResultSet resultSet = null;
+        return executeInsert(sql, propertyName);
+    }
+
+    public static String executeInsert(String sql, String jdbcName) {
         String key = null;
 
         LOGGER.log(Level.INFO, sql);
 
         try {
-            getConnection();
-            statement = connection.createStatement();
+            Connection connection = getConnection(jdbcName);
+            Statement statement = connection.createStatement();
             statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
 
             //检索由于执行此 Statement 对象而创建的所有自动生成的键
-            resultSet = statement.getGeneratedKeys();
+            ResultSet resultSet = statement.getGeneratedKeys();
 
             if (resultSet.next()) {
                 //知其仅有一列，故获取第一列
@@ -320,9 +329,6 @@ public class XdbUtil {
             statement.close();
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
-        } finally {
-            closeResultSet(resultSet);
-            closeStatement(statement);
         }
 
         return key;
@@ -333,12 +339,21 @@ public class XdbUtil {
      *
      * @param list SQL语句List
      */
-    public static void executeBatchStaticSQL(List<String> list) {
-        Statement statement = null;
+    public static boolean executeBatchStaticSQL(List<String> list) {
+        return executeBatchStaticSQL(list, propertyName);
+    }
+
+    public static boolean executeBatchStaticSQL(List<String> list, String jdbcName) {
+        Connection connection = null;
 
         try {
-            getConnection();
-            statement = connection.createStatement();
+            connection = getConnection(jdbcName);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Statement statement = connection.createStatement();
 
             for (String sql : list) {
                 LOGGER.log(Level.INFO, sql);
@@ -348,6 +363,8 @@ public class XdbUtil {
             statement.executeBatch();
             statement.clearBatch();
             statement.close();
+
+            return true;
         } catch (SQLException e) {
             try {
                 connection.rollback();
@@ -356,34 +373,8 @@ public class XdbUtil {
             }
 
             LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
-        } finally {
-            closeStatement(statement);
-        }
-    }
 
-    /**
-     * 关闭Statement
-     */
-    private static void closeStatement(Statement statement) {
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException e) {
-                LOGGER.log(Level.WARNING, "Statement 关闭错误。" + e);
-            }
-        }
-    }
-
-    /**
-     * 关闭ResultSet
-     */
-    private static void closeResultSet(ResultSet resultSet) {
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException e) {
-                LOGGER.log(Level.WARNING, "ResultSet 关闭错误。" + e);
-            }
+            return false;
         }
     }
 
@@ -391,13 +382,24 @@ public class XdbUtil {
      * 关闭Connection
      */
     public static void closeConnection() {
-        if (connection != null) {
-            try {
-                connection.close();
-                connection = null;
-            } catch (SQLException e) {
-                LOGGER.log(Level.WARNING, "connection 关闭错误。" + e);
-            }
+        if (connectionMap.isEmpty()) {
+            return;
+        }
+
+        for (String key : connectionMap.keySet()) {
+            closeConnection(key);
+        }
+    }
+
+    public static void closeConnection(String jdbcName) {
+        Connection connection = null;
+
+        try {
+            connection = getConnection(jdbcName);
+            connection.close();
+            connectionMap.remove(jdbcName);
+        } catch (SQLException e) {
+            LOGGER.log(Level.WARNING, "connection 关闭错误。" + e);
         }
     }
 
