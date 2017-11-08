@@ -10,7 +10,7 @@ How to use it:
     <dependency>
         <groupId>com.erlitech</groupId>
         <artifactId>ejava</artifactId>
-        <version>1.1.5</version>
+        <version>1.1.6</version>
     </dependency>
 
        
