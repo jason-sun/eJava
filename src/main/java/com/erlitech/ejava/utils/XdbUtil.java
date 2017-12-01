@@ -31,7 +31,7 @@ public class XdbUtil {
     public static Connection getConnection(String jdbcName) throws SQLException {
         Connection connection = null;
 
-        if (null == connectionMap.get(jdbcName) || !connectionMap.get(jdbcName).isValid(3)) {
+        if (null == connectionMap.get(jdbcName) || !connectionMap.get(jdbcName).isValid(5)) {
             String url = XPropertyUtil.getProperty("jdbc_url", jdbcName);
             String username = XPropertyUtil.getProperty("jdbc_username", jdbcName);
             String password = XPropertyUtil.getProperty("jdbc_password", jdbcName);
@@ -48,6 +48,8 @@ public class XdbUtil {
             } catch (ClassNotFoundException e) {
                 LOGGER.log(Level.SEVERE, "数据库驱动加载失败。" + e);
             }
+        } else {
+            connection = connectionMap.get(jdbcName);
         }
 
         return connection;
@@ -60,8 +62,11 @@ public class XdbUtil {
      * @return 查询结果JSONArray
      */
     public static JSONArray readList(XqlUtil xql) {
+        return readList(xql, propertyName);
+    }
 
-        return select(xql.getSelectSql());
+    public static JSONArray readList(XqlUtil xql, String jdbcName) {
+        return select(xql.getSelectSql(), jdbcName);
     }
 
     /**
@@ -71,8 +76,12 @@ public class XdbUtil {
      * @return 查询结果JSONObject
      */
     public static JSONObject readOne(XqlUtil xql) {
+        return readOne(xql, propertyName);
+    }
+
+    public static JSONObject readOne(XqlUtil xql, String jdbcName) {
         xql.setLimit("0,1");
-        JSONArray jaList = select(xql.getSelectSql());
+        JSONArray jaList = select(xql.getSelectSql(), jdbcName);
 
         JSONObject joInfo;
 
@@ -92,8 +101,12 @@ public class XdbUtil {
      * @param key 查询字段
      * @return 查询结果String
      */
-    public static String readValue(XqlUtil xql, String key) {
-        JSONObject joInfo = readOne(xql);
+    public static String readValue(XqlUtil xql, String key)  {
+        return readValue(xql, key, propertyName);
+    }
+
+    public static String readValue(XqlUtil xql, String key, String jdbcName) {
+        JSONObject joInfo = readOne(xql, jdbcName);
 
         String value;
 
@@ -113,9 +126,13 @@ public class XdbUtil {
      * @return 查询结果Integer
      */
     public static Integer readNum(XqlUtil xql) {
+        return readNum(xql, propertyName);
+    }
+
+    public static Integer readNum(XqlUtil xql, String jdbcName) {
         xql.setField("COUNT(*) AS num");
 
-        String num = readValue(xql, "num");
+        String num = readValue(xql, "num", jdbcName);
 
         return Integer.valueOf(num);
     }
@@ -127,9 +144,13 @@ public class XdbUtil {
      * @return 查询结果JSONArray
      */
     public static JSONArray select(String sql) {
+        return select(sql, propertyName);
+    }
+
+    public static JSONArray select(String sql, String jdbcName) {
         JSONArray jaList;
 
-        jaList = executeQuery(sql);
+        jaList = executeQuery(sql, jdbcName);
 
         return jaList;
     }
@@ -229,15 +250,42 @@ public class XdbUtil {
     }
 
     /**
+     * 查询记录数, 输入sql, 获取count
+     *
+     * @param sql 查询SQL语句
+     * @return 查询结果Integer
+     */
+    public static Integer readNumBySqlCount(String sql) {
+        return readNumBySqlCount(sql, propertyName);
+    }
+
+    public static Integer readNumBySqlCount(String sql, String jdbcName) {
+        JSONArray jaList;
+        Integer num = 0;
+
+        jaList = executeQuery(sql, jdbcName);
+
+        if (!jaList.isEmpty()) {
+            num = jaList.getJSONObject(0).getInteger("num");
+        }
+
+        return num;
+    }
+
+    /**
      * 新增记录
      *
      * @param xql xql对象
      * @return 新增记录主键
      */
-    public static String insert(XqlUtil xql) {
+    public static String insert(XqlUtil xql)  {
+        return insert(xql, propertyName);
+    }
+
+    public static String insert(XqlUtil xql, String jdbcName) {
         String key;
 
-        key = executeInsert(xql.getInsertSql());
+        key = executeInsert(xql.getInsertSql(), jdbcName);
 
         return key;
     }
@@ -248,10 +296,14 @@ public class XdbUtil {
      * @param xql xql对象
      * @return 删除记录数
      */
-    public static Integer delete(XqlUtil xql) {
+    public static Integer delete(XqlUtil xql)  {
+        return delete(xql, propertyName);
+    }
+
+    public static Integer delete(XqlUtil xql, String jdbcName) {
         Integer integer;
 
-        integer = executeUpdate(xql.getDeleteSql());
+        integer = executeUpdate(xql.getDeleteSql(), jdbcName);
 
         return integer;
     }
@@ -262,10 +314,14 @@ public class XdbUtil {
      * @param xql xql对象
      * @return 修改记录数
      */
-    public static Integer update(XqlUtil xql) {
+    public static Integer update(XqlUtil xql)  {
+        return update(xql, propertyName);
+    }
+
+    public static Integer update(XqlUtil xql, String jdbcName) {
         Integer integer;
 
-        integer = executeUpdate(xql.getUpdateSql());
+        integer = executeUpdate(xql.getUpdateSql(), jdbcName);
 
         return integer;
     }
@@ -409,13 +465,17 @@ public class XdbUtil {
      * @param listXql Xql对象List
      */
     public static void insertList(List<XqlUtil> listXql) {
+        insertList(listXql, propertyName);
+    }
+
+    public static void insertList(List<XqlUtil> listXql, String jdbcName) {
         List<String> list = new ArrayList<>();
 
         for (XqlUtil xql : listXql) {
             list.add(xql.getInsertSql());
         }
 
-        executeBatchStaticSQL(list);
+        executeBatchStaticSQL(list, jdbcName);
     }
 
     /**
@@ -425,6 +485,10 @@ public class XdbUtil {
      * @param jaList 数据 JSONArray
      */
     public static void insertJaListWithTableName(String table, JSONArray jaList) {
+        insertJaListWithTableName(table, jaList, propertyName);
+    }
+
+    public static void insertJaListWithTableName(String table, JSONArray jaList, String jdbcName) {
         if (jaList.isEmpty()) {
             return;
         }
@@ -441,6 +505,6 @@ public class XdbUtil {
             list.add(xql);
         }
 
-        insertList(list);
+        insertList(list, jdbcName);
     }
 }
