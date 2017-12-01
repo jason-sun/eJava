@@ -26,6 +26,8 @@ public class XdbUtil {
     /**
      * 获得数据库的连接
      *
+     * @param jdbcName jdbc配置文件名称
+     * @return connection 数据库连接
      * @throws java.sql.SQLException SQL错误捕获
      */
     public static Connection getConnection(String jdbcName) throws SQLException {
@@ -394,6 +396,7 @@ public class XdbUtil {
      * 执行SQL，批量，无返回
      *
      * @param list SQL语句List
+     * @return 执行结果
      */
     public static boolean executeBatchStaticSQL(List<String> list) {
         return executeBatchStaticSQL(list, propertyName);

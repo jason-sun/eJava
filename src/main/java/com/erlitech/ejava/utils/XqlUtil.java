@@ -32,15 +32,13 @@ public class XqlUtil {
 
         if (StringUtils.isNotEmpty(sql)) {
             sql = StringEscapeUtils.escapeSql(sql);  //lang3中不支持了
+            sql = sql.replaceAll("\\\\", "\\\\\\\\");
             sql = sql.replaceAll("\"", "\\\\\"");
         }
 
         return sql;
     }
 
-    //    public XqlUtil() {
-//        // TODO Auto-generated constructor stub
-//    }
     public String getTable() {
         return table;
     }
