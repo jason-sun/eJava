@@ -445,9 +445,18 @@ public class XdbUtil {
             return;
         }
 
+        Connection connection = null;
+
         for (String key : connectionMap.keySet()) {
-            closeConnection(key);
+            try {
+                connection = connectionMap.get(key);
+                connection.close();
+            } catch (SQLException e) {
+                LOGGER.log(Level.WARNING, "connection 关闭错误。" + e);
+            }
         }
+
+        connectionMap.clear();
     }
 
     public static void closeConnection(String jdbcName) {
