@@ -28,26 +28,28 @@ public class XFileUploadUtil {
     private static final SimpleDateFormat sdf_day = new SimpleDateFormat("MMdd");
     private static Logger logger = XLoggerUtil.getLogger(XFileUploadUtil.class.getName());
 
-    public static JSONObject upload(JSONObject joInData, HttpServletRequest request) throws FileUploadException {
+    public static JSONObject upload(JSONObject joInData, HttpServletRequest request, InputStream inputStream) throws FileUploadException {
         JSONObject joOutData = new JSONObject();
-        Part filePart = getFilePart(request);
-        InputStream inputStream;
 
-        if (null == filePart) {
-            joOutData.put("error", 1709301408);
-            joOutData.put("errorMessage", "无文件上传信息");
-            logger.warning(joOutData.toString());
-            return joOutData;
-        }
+        if (null == inputStream) {
+            Part filePart = getFilePart(request);
 
-        try {
-            inputStream = filePart.getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-            joOutData.put("error", 1709301409);
-            joOutData.put("errorMessage", "文件数据错误");
-            logger.warning(joOutData.toString());
-            return joOutData;
+            if (null == filePart) {
+                joOutData.put("error", 1709301408);
+                joOutData.put("errorMessage", "无文件上传信息");
+                logger.warning(joOutData.toString());
+                return joOutData;
+            }
+
+            try {
+                inputStream = filePart.getInputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+                joOutData.put("error", 1709301409);
+                joOutData.put("errorMessage", "文件数据错误");
+                logger.warning(joOutData.toString());
+                return joOutData;
+            }
         }
 
         XFile xFile = getXFile(request);

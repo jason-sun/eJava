@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.erlitech</groupId>
     <artifactId>ejava</artifactId>
-    <version>1.1.9</version>
+    <version>1.1.10</version>
     <name>ejava</name>
     <url>https://github.com/jason-sun/eJava</url>
     <description>A Servlet API Framework.</description>

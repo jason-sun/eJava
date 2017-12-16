@@ -20,6 +20,11 @@ public class EHttpClientUtil {
         try {
             String result = null;
             result = XHttpClientUtil.httpPostRequest(url, params);
+
+            if (result.indexOf("\"") == 0 && result.lastIndexOf("\"") == result.length() - 1) {
+                result = result.substring(1, result.length() - 1);
+            }
+
             result = XEncoder.decode(result);
             joOutData = JSONObject.parseObject(result);
         } catch (UnsupportedEncodingException e) {

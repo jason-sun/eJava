@@ -1,5 +1,6 @@
 package com.erlitech.ejava.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -71,6 +72,14 @@ public class XdbUtil {
         return select(xql.getSelectSql(), jdbcName);
     }
 
+    public static JSONArray readList(String sql) {
+        return readList(sql, propertyName);
+    }
+
+    public static JSONArray readList(String sql, String jdbcName) {
+        return select(sql, jdbcName);
+    }
+
     /**
      * 查询单条记录
      *
@@ -82,8 +91,26 @@ public class XdbUtil {
     }
 
     public static JSONObject readOne(XqlUtil xql, String jdbcName) {
-        xql.setLimit("0,1");
+        xql.setLimit("1");
         JSONArray jaList = select(xql.getSelectSql(), jdbcName);
+
+        JSONObject joInfo;
+
+        if (jaList.isEmpty()) {
+            joInfo = new JSONObject();
+        } else {
+            joInfo = (JSONObject) jaList.get(0);
+        }
+
+        return joInfo;
+    }
+
+    public static JSONObject readOne(String sql) {
+        return readOne(sql, propertyName);
+    }
+
+    public static JSONObject readOne(String sql, String jdbcName) {
+        JSONArray jaList = select(sql, jdbcName);
 
         JSONObject joInfo;
 
@@ -121,6 +148,24 @@ public class XdbUtil {
         return value;
     }
 
+    public static String readValue(String sql, String key)  {
+        return readValue(sql, key, propertyName);
+    }
+
+    public static String readValue(String sql, String key, String jdbcName) {
+        JSONObject joInfo = readOne(sql, jdbcName);
+
+        String value;
+
+        if (joInfo.isEmpty()) {
+            value = "";
+        } else {
+            value = joInfo.getString(key);
+        }
+
+        return value;
+    }
+
     /**
      * 查询记录数, 输入xql
      *
@@ -137,6 +182,27 @@ public class XdbUtil {
         String num = readValue(xql, "num", jdbcName);
 
         return Integer.valueOf(num);
+    }
+
+    public static Integer readNum(String sql) {
+        return readNum(sql, propertyName);
+    }
+
+    public static Integer readNum(String sql, String jdbcName) {
+        JSONArray jaList;
+        final Integer[] num = {0};
+
+        jaList = executeQuery(sql, jdbcName);
+
+        if (!jaList.isEmpty()) {
+            JSONObject joInfo = jaList.getJSONObject(0);
+
+            joInfo.forEach((String k, Object v) ->{
+                num[0] = joInfo.getInteger(k);
+            });
+        }
+
+        return num[0];
     }
 
     /**
@@ -190,9 +256,17 @@ public class XdbUtil {
                     switch (type) {
                         case "DATE":
                         case "TIME":
+                            value = resultSet.getString(key);
+                            break;
                         case "DATETIME":
                         case "TIMESTAMP":
-                            value = resultSet.getString(key);
+                            String datatime = resultSet.getString(key);
+
+                            if (datatime.indexOf(".") > 0) {
+                                datatime = datatime.substring(0, datatime.indexOf("."));
+                            }
+
+                            value = datatime;
                             break;
                         default:
                             value = resultSet.getObject(key);
@@ -246,29 +320,6 @@ public class XdbUtil {
             statement.close();
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
-        }
-
-        return num;
-    }
-
-    /**
-     * 查询记录数, 输入sql, 获取count
-     *
-     * @param sql 查询SQL语句
-     * @return 查询结果Integer
-     */
-    public static Integer readNumBySqlCount(String sql) {
-        return readNumBySqlCount(sql, propertyName);
-    }
-
-    public static Integer readNumBySqlCount(String sql, String jdbcName) {
-        JSONArray jaList;
-        Integer num = 0;
-
-        jaList = executeQuery(sql, jdbcName);
-
-        if (!jaList.isEmpty()) {
-            num = jaList.getJSONObject(0).getInteger("num");
         }
 
         return num;
