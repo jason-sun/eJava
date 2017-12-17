@@ -1,5 +1,6 @@
 package com.erlitech.ejava.utils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -18,7 +19,9 @@ public final class XDateUtil {
      */
     public static long getTimeStamp() {
         Date date = new Date();
-        return date.getTime();
+        long timeStamp = date.getTime();
+
+        return timeStamp;
     }
 
     /**
@@ -27,10 +30,24 @@ public final class XDateUtil {
      * @return 当日期时间 yyyy-MM-dd HH:mm:ss
      */
     public static String getDateTime() {
-        Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return getDateTime(String.valueOf(getTimeStamp()));
+    }
 
-        return formatter.format(date);
+    public static String getDateTime(String timeStamp) {
+        return getFormatTime(timeStamp, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    /**
+     * 获取当前时间, 格式化
+     *
+     * @return 当时间时间 yyyy-MM-dd
+     */
+    public static String getDate() {
+        return getDate(String.valueOf(getTimeStamp()));
+    }
+
+    public static String getDate(String timeStamp) {
+        return getFormatTime(timeStamp, "yyyy-MM-dd");
     }
 
     /**
@@ -39,9 +56,36 @@ public final class XDateUtil {
      * @return 当时间时间 HH:mm:ss
      */
     public static String getTime() {
-        Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+        return getTime(String.valueOf(getTimeStamp()));
+    }
+
+    public static String getTime(String timeStamp) {
+        return getFormatTime(timeStamp, "HH:mm:ss");
+    }
+
+
+    private static String getFormatTime(String timeStamp, String format) {
+        Date date = new Date(new Long(timeStamp));
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
 
         return formatter.format(date);
+    }
+
+    /*
+     * 将时间转换为时间戳
+     * @return 时间戳
+     */
+    public static Long toTimeStamp(String dataTime) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = null;
+
+        try {
+            date = formatter.parse(dataTime);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        long timeStamp = date.getTime();
+        return timeStamp;
     }
 }
