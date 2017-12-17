@@ -7,7 +7,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -47,9 +46,12 @@ public class XdbUtil {
                 connection.isValid(5);
                 connectionMap.put(jdbcName, connection);
             } catch (SQLException e) {
-                LOGGER.log(Level.SEVERE, "数据库连接失败。" + e);
+                LOGGER.severe("数据库连接url：" + url);
+                LOGGER.severe("数据库连接username：" + username);
+                LOGGER.severe("数据库连接password：" + password);
+                LOGGER.severe("数据库连接失败：" + e);
             } catch (ClassNotFoundException e) {
-                LOGGER.log(Level.SEVERE, "数据库驱动加载失败。" + e);
+                LOGGER.severe("数据库驱动加载失败：" + e);
             }
         } else {
             connection = connectionMap.get(jdbcName);
@@ -261,7 +263,7 @@ public class XdbUtil {
     public static JSONArray executeQuery(String sql, String jdbcName) {
         JSONArray jaList = new JSONArray();
 
-        LOGGER.log(Level.INFO, sql);
+        LOGGER.info(sql);
 
         try {
             Connection connection = getConnection(jdbcName);
@@ -312,7 +314,8 @@ public class XdbUtil {
             resultSet.close();
             statement.close();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
+            LOGGER.severe(sql);
+            LOGGER.severe("SQL执行错误: " + e);
         }
 
         return jaList;
@@ -385,7 +388,7 @@ public class XdbUtil {
     public static Integer executeUpdate(String sql, String jdbcName) {
         Integer integer = null;
 
-        LOGGER.log(Level.INFO, sql);
+        LOGGER.info(sql);
 
         try {
             Connection connection = getConnection(jdbcName);
@@ -393,7 +396,8 @@ public class XdbUtil {
             integer = statement.executeUpdate(sql);
             statement.close();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
+            LOGGER.severe("SQL: " + sql);
+            LOGGER.severe("SQL执行错误: " + e);
         }
 
         return integer;
@@ -412,7 +416,7 @@ public class XdbUtil {
     public static String executeInsert(String sql, String jdbcName) {
         String key = null;
 
-        LOGGER.log(Level.INFO, sql);
+        LOGGER.info(sql);
 
         try {
             Connection connection = getConnection(jdbcName);
@@ -430,7 +434,8 @@ public class XdbUtil {
             resultSet.close();
             statement.close();
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
+            LOGGER.severe(sql);
+            LOGGER.severe("SQL执行错误: " + e);
         }
 
         return key;
@@ -459,7 +464,7 @@ public class XdbUtil {
             Statement statement = connection.createStatement();
 
             for (String sql : list) {
-                LOGGER.log(Level.INFO, sql);
+                LOGGER.info(sql);
                 statement.addBatch(sql);
             }
 
@@ -469,13 +474,14 @@ public class XdbUtil {
 
             return true;
         } catch (SQLException e) {
+            LOGGER.severe(list.toString());
+            LOGGER.severe("SQL执行错误: " + e);
+
             try {
                 connection.rollback();
             } catch (SQLException e1) {
-                LOGGER.log(Level.SEVERE, "操作回滚错误。" + e1);
+                LOGGER.severe("操作回滚错误。" + e1);
             }
-
-            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
 
             return false;
         }
@@ -496,7 +502,7 @@ public class XdbUtil {
                 connection = connectionMap.get(key);
                 connection.close();
             } catch (SQLException e) {
-                LOGGER.log(Level.WARNING, "connection 关闭错误。" + e);
+                LOGGER.severe(key + " connection 关闭错误。" + e);
             }
         }
 
@@ -511,7 +517,7 @@ public class XdbUtil {
             connection.close();
             connectionMap.remove(jdbcName);
         } catch (SQLException e) {
-            LOGGER.log(Level.WARNING, "connection 关闭错误。" + e);
+            LOGGER.severe(jdbcName + " connection 关闭错误。" + e);
         }
     }
 
