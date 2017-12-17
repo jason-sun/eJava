@@ -14,6 +14,7 @@ import java.util.logging.Logger;
  * jdbc操作类
  * V2.0
  * 2017-11-08
+ *
  * @author 孙振强
  */
 public class XdbUtil {
@@ -60,7 +61,7 @@ public class XdbUtil {
     /**
      * 查询多条记录
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 查询结果JSONArray
      */
     public static JSONArray readList(XqlUtil xql) {
@@ -68,13 +69,27 @@ public class XdbUtil {
     }
 
     public static JSONArray readList(XqlUtil xql, String jdbcName) {
-        return select(xql.getSelectSql(), jdbcName);
+        return executeQuery(xql.getSelectSql(), jdbcName);
+    }
+
+    /**
+     * 查询多条记录
+     *
+     * @param sql SQL语句
+     * @return 查询结果JSONArray
+     */
+    public static JSONArray readListBySql(String sql) {
+        return readListBySql(sql, propertyName);
+    }
+
+    public static JSONArray readListBySql(String sql, String jdbcName) {
+        return executeQuery(sql, jdbcName);
     }
 
     /**
      * 查询单条记录
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 查询结果JSONObject
      */
     public static JSONObject readOne(XqlUtil xql) {
@@ -82,8 +97,32 @@ public class XdbUtil {
     }
 
     public static JSONObject readOne(XqlUtil xql, String jdbcName) {
-        xql.setLimit("0,1");
-        JSONArray jaList = select(xql.getSelectSql(), jdbcName);
+        xql.setLimit("1");
+        JSONArray jaList = executeQuery(xql.getSelectSql(), jdbcName);
+
+        JSONObject joInfo;
+
+        if (jaList.isEmpty()) {
+            joInfo = new JSONObject();
+        } else {
+            joInfo = (JSONObject) jaList.get(0);
+        }
+
+        return joInfo;
+    }
+
+    /**
+     * 查询单条记录
+     *
+     * @param sql SQL语句
+     * @return 查询结果JSONObject
+     */
+    public static JSONObject readOneBySql(String sql) {
+        return readOneBySql(sql, propertyName);
+    }
+
+    public static JSONObject readOneBySql(String sql, String jdbcName) {
+        JSONArray jaList = executeQuery(sql, jdbcName);
 
         JSONObject joInfo;
 
@@ -99,11 +138,11 @@ public class XdbUtil {
     /**
      * 查询单条记录单值
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @param key 查询字段
      * @return 查询结果String
      */
-    public static String readValue(XqlUtil xql, String key)  {
+    public static String readValue(XqlUtil xql, String key) {
         return readValue(xql, key, propertyName);
     }
 
@@ -122,9 +161,34 @@ public class XdbUtil {
     }
 
     /**
+     * 查询单条记录单值
+     *
+     * @param sql SQL语句
+     * @param key 查询字段
+     * @return 查询结果String
+     */
+    public static String readValueBySql(String sql, String key) {
+        return readValueBySql(sql, key, propertyName);
+    }
+
+    public static String readValueBySql(String sql, String key, String jdbcName) {
+        JSONObject joInfo = readOneBySql(sql, jdbcName);
+
+        String value;
+
+        if (joInfo.isEmpty()) {
+            value = "";
+        } else {
+            value = joInfo.getString(key);
+        }
+
+        return value;
+    }
+
+    /**
      * 查询记录数, 输入xql
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 查询结果Integer
      */
     public static Integer readNum(XqlUtil xql) {
@@ -137,6 +201,33 @@ public class XdbUtil {
         String num = readValue(xql, "num", jdbcName);
 
         return Integer.valueOf(num);
+    }
+
+    /**
+     * 查询记录数, 输入xql
+     *
+     * @param sql SQL语句
+     * @return 查询结果Integer
+     */
+    public static Integer readNumBySql(String sql) {
+        return readNumBySql(sql, propertyName);
+    }
+
+    public static Integer readNumBySql(String sql, String jdbcName) {
+        JSONArray jaList;
+        final Integer[] num = {0};
+
+        jaList = executeQuery(sql, jdbcName);
+
+        if (!jaList.isEmpty()) {
+            JSONObject joInfo = jaList.getJSONObject(0);
+
+            joInfo.forEach((String k, Object v) -> {
+                num[0] = joInfo.getInteger(k);
+            });
+        }
+
+        return num[0];
     }
 
     /**
@@ -190,9 +281,17 @@ public class XdbUtil {
                     switch (type) {
                         case "DATE":
                         case "TIME":
+                            value = resultSet.getString(key);
+                            break;
                         case "DATETIME":
                         case "TIMESTAMP":
-                            value = resultSet.getString(key);
+                            String datatime = resultSet.getString(key);
+
+                            if (datatime.indexOf(".") > 0) {
+                                datatime = datatime.substring(0, datatime.indexOf("."));
+                            }
+
+                            value = datatime;
                             break;
                         default:
                             value = resultSet.getObject(key);
@@ -220,67 +319,12 @@ public class XdbUtil {
     }
 
     /**
-     * 查询记录数, 输入sql
-     *
-     * @param sql 查询SQL语句
-     * @return 查询结果Integer
-     */
-    public static Integer readNumBySql(String sql) {
-        return readNumBySql(sql, propertyName);
-    }
-
-    public static Integer readNumBySql(String sql, String jdbcName) {
-        Integer num = 0;
-
-        LOGGER.log(Level.INFO, sql);
-
-        try {
-            Connection connection = getConnection(jdbcName);
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-
-            resultSet.last();
-            num = resultSet.getRow();
-
-            resultSet.close();
-            statement.close();
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
-        }
-
-        return num;
-    }
-
-    /**
-     * 查询记录数, 输入sql, 获取count
-     *
-     * @param sql 查询SQL语句
-     * @return 查询结果Integer
-     */
-    public static Integer readNumBySqlCount(String sql) {
-        return readNumBySqlCount(sql, propertyName);
-    }
-
-    public static Integer readNumBySqlCount(String sql, String jdbcName) {
-        JSONArray jaList;
-        Integer num = 0;
-
-        jaList = executeQuery(sql, jdbcName);
-
-        if (!jaList.isEmpty()) {
-            num = jaList.getJSONObject(0).getInteger("num");
-        }
-
-        return num;
-    }
-
-    /**
      * 新增记录
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 新增记录主键
      */
-    public static String insert(XqlUtil xql)  {
+    public static String insert(XqlUtil xql) {
         return insert(xql, propertyName);
     }
 
@@ -295,10 +339,10 @@ public class XdbUtil {
     /**
      * 删除记录
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 删除记录数
      */
-    public static Integer delete(XqlUtil xql)  {
+    public static Integer delete(XqlUtil xql) {
         return delete(xql, propertyName);
     }
 
@@ -313,10 +357,10 @@ public class XdbUtil {
     /**
      * 修改记录
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 修改记录数
      */
-    public static Integer update(XqlUtil xql)  {
+    public static Integer update(XqlUtil xql) {
         return update(xql, propertyName);
     }
 

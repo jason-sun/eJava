@@ -22,13 +22,25 @@ public final class XDateUtil {
     }
 
     /**
-     * 获取当前时间, 格式化
+     * 获取当前日期时间, 格式化
      *
-     * @return 当时间时间
+     * @return 当日期时间 yyyy-MM-dd HH:mm:ss
      */
     public static String getDateTime() {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        return formatter.format(date);
+    }
+
+    /**
+     * 获取当前时间, 格式化
+     *
+     * @return 当时间时间 HH:mm:ss
+     */
+    public static String getTime() {
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
         return formatter.format(date);
     }

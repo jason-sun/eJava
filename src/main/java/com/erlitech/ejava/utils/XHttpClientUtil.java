@@ -141,8 +141,7 @@ public class XHttpClientUtil {
             e.printStackTrace();
         }
 
-        String EMPTY_STR = "";
-        return EMPTY_STR;
+        return "";
     }
 
 }
