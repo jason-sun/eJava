@@ -1,6 +1,5 @@
 package com.erlitech.ejava.utils;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -15,6 +14,7 @@ import java.util.logging.Logger;
  * jdbc操作类
  * V2.0
  * 2017-11-08
+ *
  * @author 孙振强
  */
 public class XdbUtil {
@@ -61,7 +61,7 @@ public class XdbUtil {
     /**
      * 查询多条记录
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 查询结果JSONArray
      */
     public static JSONArray readList(XqlUtil xql) {
@@ -69,21 +69,27 @@ public class XdbUtil {
     }
 
     public static JSONArray readList(XqlUtil xql, String jdbcName) {
-        return select(xql.getSelectSql(), jdbcName);
+        return executeQuery(xql.getSelectSql(), jdbcName);
     }
 
-    public static JSONArray readList(String sql) {
-        return readList(sql, propertyName);
+    /**
+     * 查询多条记录
+     *
+     * @param sql SQL语句
+     * @return 查询结果JSONArray
+     */
+    public static JSONArray readListBySql(String sql) {
+        return readListBySql(sql, propertyName);
     }
 
-    public static JSONArray readList(String sql, String jdbcName) {
-        return select(sql, jdbcName);
+    public static JSONArray readListBySql(String sql, String jdbcName) {
+        return executeQuery(sql, jdbcName);
     }
 
     /**
      * 查询单条记录
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 查询结果JSONObject
      */
     public static JSONObject readOne(XqlUtil xql) {
@@ -92,7 +98,7 @@ public class XdbUtil {
 
     public static JSONObject readOne(XqlUtil xql, String jdbcName) {
         xql.setLimit("1");
-        JSONArray jaList = select(xql.getSelectSql(), jdbcName);
+        JSONArray jaList = executeQuery(xql.getSelectSql(), jdbcName);
 
         JSONObject joInfo;
 
@@ -105,12 +111,18 @@ public class XdbUtil {
         return joInfo;
     }
 
-    public static JSONObject readOne(String sql) {
-        return readOne(sql, propertyName);
+    /**
+     * 查询单条记录
+     *
+     * @param sql SQL语句
+     * @return 查询结果JSONObject
+     */
+    public static JSONObject readOneBySql(String sql) {
+        return readOneBySql(sql, propertyName);
     }
 
-    public static JSONObject readOne(String sql, String jdbcName) {
-        JSONArray jaList = select(sql, jdbcName);
+    public static JSONObject readOneBySql(String sql, String jdbcName) {
+        JSONArray jaList = executeQuery(sql, jdbcName);
 
         JSONObject joInfo;
 
@@ -126,11 +138,11 @@ public class XdbUtil {
     /**
      * 查询单条记录单值
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @param key 查询字段
      * @return 查询结果String
      */
-    public static String readValue(XqlUtil xql, String key)  {
+    public static String readValue(XqlUtil xql, String key) {
         return readValue(xql, key, propertyName);
     }
 
@@ -148,12 +160,19 @@ public class XdbUtil {
         return value;
     }
 
-    public static String readValue(String sql, String key)  {
-        return readValue(sql, key, propertyName);
+    /**
+     * 查询单条记录单值
+     *
+     * @param sql SQL语句
+     * @param key 查询字段
+     * @return 查询结果String
+     */
+    public static String readValueBySql(String sql, String key) {
+        return readValueBySql(sql, key, propertyName);
     }
 
-    public static String readValue(String sql, String key, String jdbcName) {
-        JSONObject joInfo = readOne(sql, jdbcName);
+    public static String readValueBySql(String sql, String key, String jdbcName) {
+        JSONObject joInfo = readOneBySql(sql, jdbcName);
 
         String value;
 
@@ -169,7 +188,7 @@ public class XdbUtil {
     /**
      * 查询记录数, 输入xql
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 查询结果Integer
      */
     public static Integer readNum(XqlUtil xql) {
@@ -184,11 +203,17 @@ public class XdbUtil {
         return Integer.valueOf(num);
     }
 
-    public static Integer readNum(String sql) {
-        return readNum(sql, propertyName);
+    /**
+     * 查询记录数, 输入xql
+     *
+     * @param sql SQL语句
+     * @return 查询结果Integer
+     */
+    public static Integer readNumBySql(String sql) {
+        return readNumBySql(sql, propertyName);
     }
 
-    public static Integer readNum(String sql, String jdbcName) {
+    public static Integer readNumBySql(String sql, String jdbcName) {
         JSONArray jaList;
         final Integer[] num = {0};
 
@@ -197,7 +222,7 @@ public class XdbUtil {
         if (!jaList.isEmpty()) {
             JSONObject joInfo = jaList.getJSONObject(0);
 
-            joInfo.forEach((String k, Object v) ->{
+            joInfo.forEach((String k, Object v) -> {
                 num[0] = joInfo.getInteger(k);
             });
         }
@@ -294,44 +319,12 @@ public class XdbUtil {
     }
 
     /**
-     * 查询记录数, 输入sql
-     *
-     * @param sql 查询SQL语句
-     * @return 查询结果Integer
-     */
-    public static Integer readNumBySql(String sql) {
-        return readNumBySql(sql, propertyName);
-    }
-
-    public static Integer readNumBySql(String sql, String jdbcName) {
-        Integer num = 0;
-
-        LOGGER.log(Level.INFO, sql);
-
-        try {
-            Connection connection = getConnection(jdbcName);
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-
-            resultSet.last();
-            num = resultSet.getRow();
-
-            resultSet.close();
-            statement.close();
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "SQL执行错误。" + e);
-        }
-
-        return num;
-    }
-
-    /**
      * 新增记录
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 新增记录主键
      */
-    public static String insert(XqlUtil xql)  {
+    public static String insert(XqlUtil xql) {
         return insert(xql, propertyName);
     }
 
@@ -346,10 +339,10 @@ public class XdbUtil {
     /**
      * 删除记录
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 删除记录数
      */
-    public static Integer delete(XqlUtil xql)  {
+    public static Integer delete(XqlUtil xql) {
         return delete(xql, propertyName);
     }
 
@@ -364,10 +357,10 @@ public class XdbUtil {
     /**
      * 修改记录
      *
-     * @param xql xql对象
+     * @param xql XQL对象
      * @return 修改记录数
      */
-    public static Integer update(XqlUtil xql)  {
+    public static Integer update(XqlUtil xql) {
         return update(xql, propertyName);
     }
 
