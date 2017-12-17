@@ -289,7 +289,7 @@ public class XdbUtil {
                         case "TIMESTAMP":
                             String datatime = resultSet.getString(key);
 
-                            if (datatime.indexOf(".") > 0) {
+                            if (null != datatime && datatime.indexOf(".") > 0) {
                                 datatime = datatime.substring(0, datatime.indexOf("."));
                             }
 
