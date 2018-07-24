@@ -33,7 +33,6 @@ public class XqlUtil {
         if (StringUtils.isNotEmpty(sql)) {
             sql = StringEscapeUtils.escapeSql(sql);  //lang3中不支持了
             sql = sql.replaceAll("\\\\", "\\\\\\\\");
-            sql = sql.replaceAll("\"", "\\\\\"");
         }
 
         return sql;
@@ -164,8 +163,6 @@ public class XqlUtil {
 
         if (StringUtils.isNotEmpty(this.getLimit())) {
             sql += " LIMIT " + this.getLimit();
-        } else {
-            sql += " LIMIT 0,1000";
         }
 
         return sql;
@@ -203,7 +200,6 @@ public class XqlUtil {
         List<String> listValue = new ArrayList<>();
 
         if (StringUtils.isEmpty(this.getTable())) {
-//            $this->error('update: table is error.');
             return sql;
         }
 
@@ -219,7 +215,7 @@ public class XqlUtil {
             if (entry.getValue() == null) {
                 listValue.add(entry.getKey() + " = null");
             } else {
-                listValue.add(entry.getKey() + " = \"" + escapeSql(entry.getValue().toString()) + "\"");
+                listValue.add(entry.getKey() + " = '" + escapeSql(entry.getValue().toString()) + "'");
             }
         }
 
@@ -257,7 +253,7 @@ public class XqlUtil {
             if (entry.getValue() == null) {
                 listValue.add("null");
             } else {
-                listValue.add("\"" + escapeSql(entry.getValue().toString()) + "\"");
+                listValue.add("'" + escapeSql(entry.getValue().toString()) + "'");
             }
         }
 
